@@ -28,4 +28,4 @@ yarn-error.log*
 .env.production.local
 
 # out dir
-dist/
+/dist
