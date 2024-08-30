@@ -21,8 +21,11 @@ type Filters = {
 };
 
 api.get('/equipments', async (req: Request, res: Response) => {
-  const filters: Filters = req.query as unknown as Filters; // Type assertion pour les filtres
-  let finalUrl = 'https://equipements.sports.gouv.fr/api/explore/v2.1/catalog/datasets/data-es/records?limit=10&offset=0&timezone=UTC&include_links=false&include_app_metas=false';
+  const filters: Filters = req.query as unknown as Filters;
+  const limit = parseInt(req.query.limit as string) || 10;
+  const offset = parseInt(req.query.offset as string) || 0;
+
+  let finalUrl = `https://equipements.sports.gouv.fr/api/explore/v2.1/catalog/datasets/data-es/records?limit=${limit}&offset=${offset}&timezone=UTC&include_links=false&include_app_metas=false`;
   let whereClauses: string[] = [];
 
   if (filters.global_search && filters.global_search.trim() !== '') {
@@ -31,14 +34,14 @@ api.get('/equipments', async (req: Request, res: Response) => {
   }
 
   Object.entries(filters)
-    .filter(([key, value]) => key !== 'global_search' && value && value.trim() !== '') // Exclure 'global_search' et les valeurs vides
+    .filter(([key, value]) => key !== 'global_search' && key !== 'limit' && key !== 'offset' && value && value.trim() !== '')
     .forEach(([key, value]) => {
       whereClauses.push(`${key}="${value?.trim()}"`);
     });
 
   if (whereClauses.length > 0) {
     const whereQuery = whereClauses.join('&where=');
-    finalUrl += `&where=${whereQuery}`; // Utiliser '&where=' pour séparer les clauses
+    finalUrl += `&where=${whereQuery}`;
   }
 
   try {
@@ -53,6 +56,31 @@ api.get('/equipments', async (req: Request, res: Response) => {
     res.status(500).send('Error fetching equipments');
   }
 });
+
+api.get('/equipments/:equip_numero', async (req: Request, res: Response) => {
+  const equip_numero = req.params.equip_numero;
+  const equipmentUrl = `https://equipements.sports.gouv.fr/api/explore/v2.1/catalog/datasets/data-es/records?timezone=UTC&include_links=false&include_app_metas=false&where=equip_numero="${equip_numero}"`;
+
+  try {
+    const response = await fetch(equipmentUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch equipment data, status code: ${response.status}`);
+    }
+
+    const data = await response.json();
+    res.send(data);
+  } catch (error) {
+    console.error('Error fetching equipment by numero:', error);
+    res.status(500).send('Error fetching equipment by numero');
+  }
+});
+
 
 // Version the api
 app.use('/api/v1', api);
