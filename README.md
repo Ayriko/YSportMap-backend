@@ -1,4 +1,4 @@
-# Projet de Gestion des Équipements Sportifs
+# YSportMap Backend - Trouve ton terrain
 
 ## Description
 Ce projet est une API pour la gestion des équipements sportifs. Il permet de rechercher des équipements en fonction de différents filtres et de récupérer des informations détaillées sur un équipement spécifique.
@@ -30,7 +30,7 @@ Ce projet est une API pour la gestion des équipements sportifs. Il permet de re
 
 2. L'API sera accessible à `http://localhost:3000`. Attention Il faut créer un fichier .env et y joindre PORT=3000.
 
-3. Le projet est pensé pour être utiliser avec le projet front-end : https://github.com/Ayriko/YSportMap-frontend(
+3. Le projet est pensé pour être utiliser avec le projet front-end : https://github.com/Ayriko/YSportMap-frontend
 
 ## Endpoints
 ### GET `/api/v1/equipments`
