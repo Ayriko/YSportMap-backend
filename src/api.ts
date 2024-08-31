@@ -50,8 +50,6 @@ api.get('/equipments', async (req: Request, res: Response) => {
     finalUrl += `&where=${whereQuery}`;
   }
 
-  console.log(finalUrl);
-
   try {
     const response = await fetch(finalUrl);
     if (!response.ok) {
