@@ -17,6 +17,7 @@ const api = express.Router();
 
 type Filters = {
   global_search?: string | undefined;
+  equip_type_name?: string | undefined;
   [key: string]: string | undefined;
 };
 
@@ -33,8 +34,13 @@ api.get('/equipments', async (req: Request, res: Response) => {
     whereClauses.push(`suggest(equip_nom,inst_nom,inst_com_nom,"${globalSearch}")`);
   }
 
+  if (filters.equip_type_name && filters.equip_type_name.trim() !== '') {
+    const equip_type_name = filters.equip_type_name.trim();
+    whereClauses.push(`suggest(equip_type_name,"${equip_type_name}")`);
+  }
+
   Object.entries(filters)
-    .filter(([key, value]) => key !== 'global_search' && key !== 'limit' && key !== 'offset' && value && value.trim() !== '')
+    .filter(([key, value]) => key !== 'global_search' && key !== 'equip_type_name' && key !== 'limit' && key !== 'offset' && value && value.trim() !== '')
     .forEach(([key, value]) => {
       whereClauses.push(`${key}="${value?.trim()}"`);
     });
@@ -43,6 +49,8 @@ api.get('/equipments', async (req: Request, res: Response) => {
     const whereQuery = whereClauses.join('&where=');
     finalUrl += `&where=${whereQuery}`;
   }
+
+  console.log(finalUrl);
 
   try {
     const response = await fetch(finalUrl);
